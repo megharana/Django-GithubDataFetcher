@@ -14,10 +14,11 @@ urlpatterns = [
    
     url(r'auth/social/', views.home, name='auth-social'), #for welcome page
     url(r'auth-social/', include('social_django.urls',namespace='social')),
-	url(r'accounts/profile/', views.searchUser, name='getName'), #for searching page
+	url(r'accounts/profile/', views.searchUser, name='searchUser'), #for searching page
 	url(r'^auth/posts/',include(("MoonmenLogin.api.urls",'MoonmenLogin'),namespace='posts-api')),
 	url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-	
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+	url(r'^users/name/', views.getName),
+	#url(r'^users/name/',views.getName),
 
 ]
