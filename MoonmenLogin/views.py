@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from social_core.backends.github import GithubOAuth2
 from github import Github
 
+from django.db import IntegrityError
 
 from MoonmenLogin.forms import seachUser_form,saveData_form
 from MoonmenLogin.models import User
@@ -36,7 +37,7 @@ def searchUser(request):
 		form1 = seachUser_form(request.POST)
 		if form1.is_valid():
 			name=form1.cleaned_data['name']
-			g = Github("ea40562a136a8f0693eb99149b40c846ad9202f6") #github access token
+			g = Github("4e98edd3c750ee649262b6496edbe883e677312f") #github access token
 			users = g.search_users(name, location="India")[0:10] #searching the user based on the "name"
 			return render(request,'GithubUserSearch.html',{'data':users}) #rendering the searched data to respective html page
 
@@ -81,7 +82,7 @@ def getName(request):
 			return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
 	if(request.method=='GET'):
 		try:
-			g = Github("debfdbf49ce456a73bf99c5c3a44ea9afcbaae2d")
+			g = Github("4e98edd3c750ee649262b6496edbe883e677312f")
 			users = g.search_users(reqName, location="India")[0:10] #users search
 			userList=[]
 			for x in users:
@@ -89,3 +90,35 @@ def getName(request):
 			return Response(userList,status.HTTP_201_CREATED) #sending to vue interface
 		except ValueError as e:
 			return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', ])
+def submittedUser(request):
+	global reqName
+	if(request.method=='POST'):
+		try:
+			reqName=str(request.body)  #for the requested name
+			start=reqName.find('b')+2
+			end=reqName.find('"')
+			reqName=reqName[start:end] #eleminated unwanted characters'
+			print(reqName)
+			url = "https://api.github.com/users/%s" %reqName  #making api based on the loginName
+			geodata = requests.get(url).json() #fetching the deatils of json
+			userName = geodata['login']
+			userType= geodata['type']
+			userAvatarUrl = geodata['avatar_url']
+			created_date = geodata['created_at']  #taking out only created_at
+			try:
+				u=User.objects.create(username=userName,usertype=userType,userAvatarUrl=userAvatarUrl,createdDate=created_date[:10]) # saving the fields in database
+				u.save()
+			except IntegrityError as e:
+				print(e)
+				getUpdated = User.objects.get(username=userName)
+				withUpdated = User.objects.create(username=userName,usertype=userType,userAvatarUrl=userAvatarUrl,createdDate=created_date[:10]) # saving the fields in database
+				getUpdated = withUpdated	
+				getUpdated.save()
+
+
+			return Response(status.HTTP_201_CREATED)
+		except ValueError as e:
+			return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
+	
