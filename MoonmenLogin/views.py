@@ -82,7 +82,7 @@ def getName(request):
 			return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
 	if(request.method=='GET'):
 		try:
-			g = Github("4e98edd3c750ee649262b6496edbe883e677312f")
+			g = Github("c8dbb687160ecf7e7e5b329ca61ab4731f8878ed")
 			users = g.search_users(reqName, location="India")[0:10] #users search
 			userList=[]
 			for x in users:
@@ -111,11 +111,8 @@ def submittedUser(request):
 				u=User.objects.create(username=userName,usertype=userType,userAvatarUrl=userAvatarUrl,createdDate=created_date[:10]) # saving the fields in database
 				u.save()
 			except IntegrityError as e:
-				print(e)
-				getUpdated = User.objects.get(username=userName)
-				withUpdated = User.objects.create(username=userName,usertype=userType,userAvatarUrl=userAvatarUrl,createdDate=created_date[:10]) # saving the fields in database
-				getUpdated = withUpdated	
-				getUpdated.save()
+				print("User already exists",e)
+				pass
 
 
 			return Response(status.HTTP_201_CREATED)
