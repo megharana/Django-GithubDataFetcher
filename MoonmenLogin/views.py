@@ -16,6 +16,11 @@ from django.db import IntegrityError
 
 from MoonmenLogin.forms import seachUser_form,saveData_form
 from MoonmenLogin.models import User
+from MoonmenLogin.models import SaveCounterAdvanced
+
+from celery.result import AsyncResult
+
+from MoonmenLogin.tasks import increment
 import requests
 
 
@@ -37,7 +42,7 @@ def searchUser(request):
 		form1 = seachUser_form(request.POST)
 		if form1.is_valid():
 			name=form1.cleaned_data['name']
-			g = Github("4e98edd3c750ee649262b6496edbe883e677312f") #github access token
+			g = Github("beeab3db75333225221c3a9954b6c720e48fed03") #github access token
 			users = g.search_users(name, location="India")[0:10] #searching the user based on the "name"
 			return render(request,'GithubUserSearch.html',{'data':users}) #rendering the searched data to respective html page
 
@@ -82,7 +87,7 @@ def getName(request):
 			return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
 	if(request.method=='GET'):
 		try:
-			g = Github("c8dbb687160ecf7e7e5b329ca61ab4731f8878ed")
+			g = Github("beeab3db75333225221c3a9954b6c720e48fed03")
 			users = g.search_users(reqName, location="India")[0:10] #users search
 			userList=[]
 			for x in users:
@@ -110,11 +115,17 @@ def submittedUser(request):
 			try:
 				u=User.objects.create(username=userName,usertype=userType,userAvatarUrl=userAvatarUrl,createdDate=created_date[:10]) # saving the fields in database
 				u.save()
+				task_add=increment.delay()
+				# print(task_add.id)
+				# result= AsyncResult(id=task_add.id)
+				print(task_add.state)
+
+				print(task_add.get())
+				save_Counter=SaveCounterAdvanced.objects.only('saveCount')
+				print(save_Counter[0].saveCount)
 			except IntegrityError as e:
 				print("User already exists",e)
 				pass
-
-
 			return Response(status.HTTP_201_CREATED)
 		except ValueError as e:
 			return Response(e.args[0],status.HTTP_400_BAD_REQUEST)

@@ -107,3 +107,11 @@ venv.bak/
 
 #dbsqlite3
 DjangoGithubDataFetcher/dbsqlite3
+
+#celery
+DjangoGithubDataFetcher/celerybeat-schedule.bak
+DjangoGithubDataFetcher/celerybeat-schedule.dat
+DjangoGithubDataFetcher/celerybeat-schedule.dir
+
+#migrations
+DjangoGithubDataFetcher/MoonmenLogin/migrations/*
