@@ -42,7 +42,7 @@ def searchUser(request):
 		form1 = seachUser_form(request.POST)
 		if form1.is_valid():
 			name=form1.cleaned_data['name']
-			g = Github("beeab3db75333225221c3a9954b6c720e48fed03") #github access token
+			g = Github("e43630ec1285ee9410dd55d48f758a6509ea65ae") #github access token
 			users = g.search_users(name, location="India")[0:10] #searching the user based on the "name"
 			return render(request,'GithubUserSearch.html',{'data':users}) #rendering the searched data to respective html page
 
@@ -87,7 +87,7 @@ def getName(request):
 			return Response(e.args[0],status.HTTP_400_BAD_REQUEST)
 	if(request.method=='GET'):
 		try:
-			g = Github("beeab3db75333225221c3a9954b6c720e48fed03")
+			g = Github("e43630ec1285ee9410dd55d48f758a6509ea65ae")
 			users = g.search_users(reqName, location="India")[0:10] #users search
 			userList=[]
 			for x in users:
