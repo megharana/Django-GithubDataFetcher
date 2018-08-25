@@ -11,5 +11,5 @@ Technologies used:
 	Additional Concepts Used : Celery 3.1.18 , Django Rest Framework 3.8.2 (handling GET and POST request)
 
 Data Flow Diagram:
-
+	![DataFlow](DataFlow.png)
 For accessing Github API and for performing Git operations over HTTPS, a Personal Access Token(OAuth access Token) is created.
